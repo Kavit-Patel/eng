@@ -1,1 +1,25 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.client = void 0;
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const client_1 = require("@prisma/client");
+const dotenv_1 = require("dotenv");
+const error_1 = require("./errorMiddleware/error");
+const userRoute_1 = __importDefault(require("./route/userRoute"));
+const gptRoute_1 = __importDefault(require("./route/gptRoute"));
+const app = (0, express_1.default)();
+(0, dotenv_1.config)();
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
+exports.client = new client_1.PrismaClient();
+exports.client.$connect().then(() => console.log("Database Connected !"));
+app.use("/api", userRoute_1.default);
+app.use("/api", gptRoute_1.default);
+app.use(error_1.errorMiddleware);
+app.listen(process.env.PORT || 3000, () => console.log(`Express Connected !`));

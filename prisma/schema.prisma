@@ -19,6 +19,7 @@ model users{
   password String
   tset tsets[]
   audio audios[]
+  createdAt DateTime @default(now())
 }
 model tsets{
   id Int @id @default(autoincrement())
@@ -27,6 +28,7 @@ model tsets{
   userId Int
   user users @relation(fields: [userId],references: [id],onDelete:Cascade)
   audio audios[]
+  createdAt DateTime @default(now())
 }
 model audios{
   id Int @id @default(autoincrement())
@@ -35,4 +37,5 @@ model audios{
   tsetId Int
   user users @relation(fields: [userId],references: [id],onDelete: Cascade)
   tset tsets @relation(fields: [tsetId],references: [id],onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
