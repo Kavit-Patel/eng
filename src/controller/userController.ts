@@ -49,7 +49,7 @@ export const login = async (
       return next(new ErrorHandler(403, "Provide all details !"));
     const user = await client.users.findUnique({
       where: { email },
-      include: { tset: true, audio: true },
+      include: { tset: true },
     });
     if (!user) {
       return next(new ErrorHandler(403, "Email is invalid !"));
@@ -59,12 +59,14 @@ export const login = async (
       return next(new ErrorHandler(403, "Password is invalid !"));
     }
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || " ");
+    const tenDays = 10 * 24 * 60 * 60 * 1000;
+    res.cookie("eng_token", token, {
+      secure: false,
+      httpOnly: true,
+      expires: new Date(Date.now() + tenDays),
+      sameSite: "none",
+    });
     return res
-      .cookie("eng_token", token, {
-        secure: false,
-        maxAge: 10000000,
-        sameSite: "none",
-      })
       .status(200)
       .json({ success: true, message: "User Logged In !", response: user });
   } catch (error) {
@@ -91,7 +93,7 @@ export const cookieAutoLogin = async (
     }
     const user = await client.users.findUnique({
       where: { id: parseInt(data.userId) },
-      include: { tset: true, audio: true },
+      include: { tset: true },
     });
     if (!user) return next(new ErrorHandler(403, "User doesn't exists !"));
     return res.status(200).json({

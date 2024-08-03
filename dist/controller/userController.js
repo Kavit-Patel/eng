@@ -51,7 +51,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             return next(new error_1.ErrorHandler(403, "Provide all details !"));
         const user = yield __1.client.users.findUnique({
             where: { email },
-            include: { tset: true, audio: true },
+            include: { tset: true },
         });
         if (!user) {
             return next(new error_1.ErrorHandler(403, "Email is invalid !"));
@@ -61,12 +61,14 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             return next(new error_1.ErrorHandler(403, "Password is invalid !"));
         }
         const token = jsonwebtoken_1.default.sign({ userId: user.id }, process.env.JWT_SECRET || " ");
-        return res
-            .cookie("eng_token", token, {
+        const tenDays = 10 * 24 * 60 * 60 * 1000;
+        res.cookie("eng_token", token, {
             secure: false,
-            maxAge: 10000000,
+            httpOnly: true,
+            expires: new Date(Date.now() + tenDays),
             sameSite: "none",
-        })
+        });
+        return res
             .status(200)
             .json({ success: true, message: "User Logged In !", response: user });
     }
@@ -92,7 +94,7 @@ const cookieAutoLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         }
         const user = yield __1.client.users.findUnique({
             where: { id: parseInt(data.userId) },
-            include: { tset: true, audio: true },
+            include: { tset: true },
         });
         if (!user)
             return next(new error_1.ErrorHandler(403, "User doesn't exists !"));

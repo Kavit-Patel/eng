@@ -17,6 +17,8 @@ const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
+app.use(express_1.default.json({ limit: "10mb" }));
+app.use(express_1.default.urlencoded({ limit: "10mb", extended: true }));
 exports.client = new client_1.PrismaClient();
 exports.client.$connect().then(() => console.log("Database Connected !"));
 app.use("/api", userRoute_1.default);
